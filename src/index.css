@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+
+  --color-ink-950: #0a0a0c;
+  --color-ink-900: #0f0f11;
+  --color-ink-850: #141416;
+  --color-ink-800: #1e1e22;
+  --color-ink-700: #2a2a30;
+  --color-ink-600: #35353c;
+  --color-ink-500: #3f3f46;
+
+  --color-snow: #ffffff;
+  --color-fog: #e4e4e7;
+  --color-silver: #a1a1aa;
+  --color-ash: #71717a;
+
+  --color-ok: #8ab4a0;
+  --color-ok-strong: #6fb091;
+  --color-ok-muted: rgba(138, 180, 160, 0.14);
+  --color-ok-ink: #0f0f11;
+  --color-debt: #cf6b6b;
+  --color-debt-strong: #e07171;
+  --color-debt-muted: rgba(207, 107, 107, 0.14);
+  --color-warn: #c9b56a;
+  --color-warn-strong: #d8c37a;
+  --color-warn-muted: rgba(201, 181, 106, 0.14);
+  --color-accent: #ffffff;
+  --color-accent-strong: #e4e4e7;
+  --color-accent-ink: #0f0f11;
+
+  --radius-xl2: 1rem;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-ink-900 text-fog font-sans antialiased;
+    margin: 0;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #141416;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #3f3f46;
+    border-radius: 8px;
+    border: 2px solid #141416;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #52525b;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #3f3f46 #141416;
+  }
+
+  /* Ajustes de interfaz en dispositivos Android */
+  body.is-android {
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: none;
+  }
+
+  body.is-android ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-sheet,
+  #print-sheet * {
+    visibility: visible;
+  }
+  #print-sheet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 24px;
+    font-size: 13px;
+  }
+  #print-sheet table {
+    border-collapse: collapse;
+  }
+}

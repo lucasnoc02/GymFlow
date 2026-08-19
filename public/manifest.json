@@ -1,0 +1,32 @@
+{
+  "name": "GymFlow — Gestión de Gimnasio",
+  "short_name": "GymFlow",
+  "description": "GymFlow — Gestión de gimnasios: socios, pagos, deudas, asistencia, rutinas y acceso de alumnos. Funciona sin conexión.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0F0F11",
+  "theme_color": "#1E1E22",
+  "lang": "es",
+  "categories": ["business", "health", "fitness"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
