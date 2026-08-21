@@ -1,5 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import type { AttendanceRecord } from '../types'
+import { supabase, isSupabaseConfigured } from './supabaseClient'
 
 const QUEUE_KEY = 'gymflow-offline-attendance-v1'
 const SYNC_EVENT = 'gymflow-sync-changed'
@@ -79,27 +80,42 @@ export function useOnlineStatus(): boolean {
 }
 
 // Envía las asistencias pendientes al backend y limpia la cola local.
-// Devuelve cuántas se sincronizaron. Si no hay backend configurado,
-// la cola se vacía (los registros ya viven en la base local).
+// Devuelve cuántas se sincronizaron.
 export async function flushPendingAttendance(): Promise<number> {
   const pending = getPendingAttendance()
   if (pending.length === 0) return 0
 
-  if (!SYNC_URL) {
-    clearPendingAttendance()
-    return pending.length
+  // Prioridad 1: backend en la nube configurado vía VITE_CLOUD_SYNC_URL.
+  if (SYNC_URL) {
+    try {
+      const res = await fetch(SYNC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attendance: pending }),
+      })
+      if (!res.ok) return 0
+      clearPendingAttendance()
+      return pending.length
+    } catch {
+      return 0 // sigue la cola, se reintentará al volver la conexión
+    }
   }
 
-  try {
-    const res = await fetch(SYNC_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ attendance: pending }),
-    })
-    if (!res.ok) return 0
-    clearPendingAttendance()
-    return pending.length
-  } catch {
-    return 0 // sigue la cola, se reintentará al volver la conexión
+  // Prioridad 2: escribir directamente en la tabla attendances de Supabase.
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const rows = pending.map((a) => ({ member_id: a.memberId, date: a.date, timestamp: a.timestamp }))
+      const { error } = await supabase.from('attendances').upsert(rows, { onConflict: 'member_id,date' })
+      if (error) return 0
+      clearPendingAttendance()
+      return pending.length
+    } catch {
+      return 0
+    }
   }
+
+  // Sin backend ni Supabase: la cola se vacía porque los registros ya viven
+  // en la base local (espejo en localStorage).
+  clearPendingAttendance()
+  return pending.length
 }

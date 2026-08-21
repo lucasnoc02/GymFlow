@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
 
@@ -93,16 +94,25 @@ export function Field({ label, hint, error, children, className }: FieldProps) {
 const controlBase =
   'w-full rounded-lg border border-ink-500 bg-ink-800 px-3 py-2 text-sm text-fog placeholder:text-ash transition-colors focus:border-silver focus:outline-none focus:ring-2 focus:ring-silver/30'
 
-export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={cn(controlBase, className)} {...props} />
+export function Input({ className, id, name, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+  const autoId = useId()
+  const fieldId = id ?? name ?? `input-${autoId}`
+  const fieldName = name ?? id ?? fieldId
+  return <input id={fieldId} name={fieldName} className={cn(controlBase, className)} {...props} />
 }
 
-export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={cn(controlBase, 'cursor-pointer', className)} {...props} />
+export function Select({ className, id, name, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+  const autoId = useId()
+  const fieldId = id ?? name ?? `select-${autoId}`
+  const fieldName = name ?? id ?? fieldId
+  return <select id={fieldId} name={fieldName} className={cn(controlBase, 'cursor-pointer', className)} {...props} />
 }
 
-export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea className={cn(controlBase, 'min-h-32 resize-y font-mono text-[13px]', className)} {...props} />
+export function Textarea({ className, id, name, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const autoId = useId()
+  const fieldId = id ?? name ?? `textarea-${autoId}`
+  const fieldName = name ?? id ?? fieldId
+  return <textarea id={fieldId} name={fieldName} className={cn(controlBase, 'min-h-32 resize-y font-mono text-[13px]', className)} {...props} />
 }
 
 export function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label?: string }) {

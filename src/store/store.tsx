@@ -22,6 +22,8 @@ import { normalizeMember } from '../lib/memberStatus'
 import { useToday } from '../lib/dateContext'
 import { ensureUniqueCode } from '../lib/codes'
 import { seedDB } from '../data/mock'
+import { pullFullState, pushFullState } from '../lib/supabaseSync'
+import { isSupabaseConfigured } from '../lib/supabaseClient'
 
 const STORAGE_KEY = 'gymflow-db-v1'
 const SESSION_KEY = 'gymflow-session-v1'
@@ -175,9 +177,57 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<SessionState>(() => loadSession().role)
   const [sessionMemberId, setSessionMemberId] = useState<string | null>(() => loadSession().memberId)
 
+  // True una vez que la nube (o la falta de credenciales) fue resuelta.
+  // Evita que el primer push local sobreescriba datos remotos antes de hidratar.
+  const [cloudReady, setCloudReady] = useState(false)
+
   useEffect(() => {
     persist(db)
   }, [db])
+
+  // Hidratación inicial: la nube es la fuente de verdad. Si tiene datos, reemplaza
+  // el estado local; si está vacía, empuja el estado local (seed) una sola vez.
+  useEffect(() => {
+    let cancelled = false
+    const hydrate = async () => {
+      if (!isSupabaseConfigured) {
+        setCloudReady(true)
+        return
+      }
+      const remote = await pullFullState()
+      if (cancelled) return
+      if (remote) {
+        const hasData =
+          remote.members.length > 0 || remote.tasks.length > 0 || remote.templates.length > 0
+        if (hasData) {
+          const migrated: DB = {
+            ...remote,
+            settings: migrateSettings(remote.settings),
+            members: migrateMemberCodes(remote.members),
+          }
+          setDb(migrated)
+          setCloudReady(true)
+          return
+        }
+      }
+      await pushFullState(db)
+      setCloudReady(true)
+    }
+    hydrate()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Replica cada cambio del store en Supabase (debounced para agrupar ráfagas).
+  useEffect(() => {
+    if (!cloudReady) return
+    const t = setTimeout(() => {
+      pushFullState(db)
+    }, 500)
+    return () => clearTimeout(t)
+  }, [db, cloudReady])
 
   useEffect(() => {
     try {

@@ -27,6 +27,8 @@ export function Topbar({ title, subtitle, search, onSearch, onReset, actions }: 
           <div className="relative">
             <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ash" />
             <input
+              id="topbar-search-input"
+              name="search"
               value={search}
               onChange={(e) => onSearch(e.target.value)}
               placeholder="Buscar…"

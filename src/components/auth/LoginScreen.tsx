@@ -102,6 +102,8 @@ function AdminLogin({ onBack }: { onBack: () => void }) {
         <label className="block text-xs font-medium text-silver">
           Usuario / Correo
           <input
+            id="admin-username"
+            name="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoFocus
@@ -112,6 +114,8 @@ function AdminLogin({ onBack }: { onBack: () => void }) {
         <label className="mt-3 block text-xs font-medium text-silver">
           Contraseña
           <input
+            id="admin-password"
+            name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -152,6 +156,8 @@ function StudentLogin({ onBack }: { onBack: () => void }) {
         <p className="text-sm font-semibold text-fog">Ingresá tu código personal de alumno</p>
         <p className="mt-1 text-xs text-ash">Código alfanumérico único de 6 caracteres</p>
         <input
+          id="student-login-code"
+          name="loginCode"
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           maxLength={6}
